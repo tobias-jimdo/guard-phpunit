@@ -50,6 +50,13 @@ describe Guard::PHPUnit::Runner do
         subject.run( ['tests'] )
       end
 
+      it 'uses the phpunit path passed via the options if provided' do
+        subject.should_receive(:execute_command).with(
+            %r{^./vendor/bin/phpunit .+$}
+        )
+        subject.run(['tests'], :phpunit_binary => './vendor/bin/phpunit')
+      end
+
       it 'prints the tests output to the console' do
           output = load_phpunit_output('passing')
           subject.stub(:notify_start)

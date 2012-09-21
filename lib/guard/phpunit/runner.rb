@@ -30,7 +30,7 @@ module Guard
 
           return false if paths.empty?
 
-          unless phpunit_exists?
+          unless phpunit_exists?(options)
             UI.error('phpunit is not installed on your machine.', :reset => true)
             return false
           end
@@ -45,8 +45,8 @@ module Guard
         #
         # @return [Boolean] The status of phpunit
         #
-        def phpunit_exists?
-          `phpunit --version`
+        def phpunit_exists?(options)
+          `#{phpunit_binary(options)} --version`
           true
         rescue Errno::ENOENT
           false
@@ -164,6 +164,14 @@ module Guard
           end
         end
 
+        def phpunit_binary(options)
+          if options[:phpunit_binary]
+            return options[:phpunit_binary]
+          end
+
+          return "phpunit"
+        end
+
         # Generates the phpunit command for the tests paths.
         #
         # @param (see #run)
@@ -174,7 +182,7 @@ module Guard
           formatter_path = File.join( File.dirname(__FILE__), 'formatters', 'PHPUnit-Progress')
 
           cmd_parts = []
-          cmd_parts << "phpunit"
+          cmd_parts << phpunit_binary(options)
           cmd_parts << "--include-path #{formatter_path}"
           cmd_parts << "--printer PHPUnit_Extensions_Progress_ResultPrinter"
           cmd_parts << options[:cli] if options[:cli]
